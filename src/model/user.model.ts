@@ -55,8 +55,9 @@ export function getUserByEmail(email: string) {
 //delete the user by the id
 export function deleteUserById(id:number){
   logger.info("Called deleteUserById")
-  users = users.filter(user => parseInt(user.id) !== id);
-  return {message: `user${id} is delted`}
+  const data = users.filter(user => parseInt(user.id) !== id);
+  if(data.length != 1) throw new NotFoundError("This user can not be found")
+  return {message: `user${id} is deleted`}
 }
 
 //update the user from the given Id

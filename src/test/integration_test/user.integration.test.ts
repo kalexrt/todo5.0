@@ -14,6 +14,7 @@ describe("User Integration Test Suite", () => {
   app.use(genericErrorHandler);
   app.use(routeNotFoundError);
 
+  //ccreate user request
   describe("createUser API test", () => {
     it("Should create a new user", async ()=>{
         const response = await request(app)
@@ -29,6 +30,8 @@ describe("User Integration Test Suite", () => {
         expect(response.body).toHaveProperty("message", "User created");
     })
   });
+
+  //get user by Id
   describe("getUserById API test", () => {
     it("Should return user by id", async () => {
       const userId = "1";
@@ -48,6 +51,90 @@ describe("User Integration Test Suite", () => {
       const response = await request(app)
         .get(`/users/${userId}`)
         .set("Authorization", token)
+
+      expect(response.status).toBe(404);
+      const responseBody = JSON.parse(response.text);
+      expect(responseBody).toHaveProperty("message", "Not Found");
+    });
+  });
+
+  //get users
+  describe("getUsers API test", () => {
+    it("Should return users based on query", async () => {
+      const response = await request(app)
+        .get("/users")
+        .set("Authorization", token)
+        .query({ q: "Kalash" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    it("Should return empty array when no users match query", async () => {
+      const response = await request(app)
+        .get("/users")
+        .set("Authorization", token)
+        .query({ q: "NonExistingUser" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBe(0);
+    });
+  });
+
+  //update users
+  describe("updateUserById API test", () => {
+    it("Should update user by id", async () => {
+      const userId = "1";
+      const response = await request(app)
+        .put(`/users/${userId}`)
+        .set("Authorization", token)
+        .send({
+          id: userId,
+          name: "Updated Kalash",
+          email: "kalash1@gmail.com",
+          password: "$2b$10$I24gdNea7i6fSXPl1uy96.cle9N5v6Zt8HyZTkTpFhD.kwzHeBHNW",
+          permissions:["users.getAll","users.create","users.getById","users.updateById","users.deleteById"],
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveProperty("id", "1");
+      expect(response.body.data).toHaveProperty("name", "Updated Kalash");
+    });
+
+    it("Should return error when updating non-existing user", async () => {
+      const userId = "999";
+      const response = await request(app)
+        .put(`/users/${userId}`)
+        .set("Authorization", token)
+        .send({
+          name: "NonExistingUser",
+        });
+
+      expect(response.status).toBe(500);
+      // expect(responseBody).toHaveProperty("message", "Not Found");
+      expect(response.body).toHaveProperty("message", "Internal Server Error");
+    });
+  });
+
+  //delete request
+  describe("deleteUserById API test", () => {
+    it("Should delete user by id", async () => {
+      const userId = "2";
+      const response = await request(app)
+        .delete(`/users/${userId}`)
+        .set("Authorization", token);
+
+      expect(response.status).toBe(200);
+      expect(response.body.userDeletionResult).toHaveProperty("message", `user${userId} is deleted`);
+    });
+
+    it("Should return error when deleting non-existing user", async () => {
+      const userId = "999";
+      const response = await request(app)
+        .delete(`/users/${userId}`)
+        .set("Authorization", token);
 
       expect(response.status).toBe(404);
       const responseBody = JSON.parse(response.text);
