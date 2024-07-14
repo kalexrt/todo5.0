@@ -3,7 +3,6 @@ import { NextFunction, Response } from "express";
 import { Request } from "../interfaces/auth.interface";
 import HttpStatusCodes from "http-status-codes";
 import loggerWithNameSpace from "../utils/logger";
-import { ServerError } from "../error/ServerError";
 
 const logger = loggerWithNameSpace("TaskController")
 

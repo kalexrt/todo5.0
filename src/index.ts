@@ -1,7 +1,7 @@
 import express from "express";
 import config from "./config";
 import router from "./routes/index.routes";
-import { genericErrorHandler, notFoundError } from "./middlewares/errorHandler.middleware";
+import { genericErrorHandler, routeNotFoundError } from "./middlewares/errorHandler.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
 import helmet from "helmet";
 import rateLimiter from "express-rate-limit";
@@ -38,7 +38,7 @@ app.use(requestLogger);
 app.use(router);
 
 app.use(genericErrorHandler);
-app.use(notFoundError);
+app.use(routeNotFoundError);
 
 app.listen(config.port, () => {
     console.log(`Server started listening on port: ${config.port}`);

@@ -3,7 +3,7 @@ import { getUserQuery, User } from "../interfaces/user.interface";
 import * as taskModel from "../model/task.model"
 import * as userModel from "../model/user.model";
 import loggerWithNameSpace from "../utils/logger";
-import { BadRequestError } from "../error/BadRequestError";
+import { NotFoundError } from "../error/NotFoundError";
 
 const logger = loggerWithNameSpace("UserService");
 
@@ -13,7 +13,7 @@ export function getUserById(id: number) {
   logger.info("Called getUserById");
   const data = userModel.getUserById(id);
   if (!data) {
-    throw new BadRequestError("User with this Id does not exist")
+    throw new NotFoundError("User with this Id does not exist")
   }
   return data;
 }
@@ -31,7 +31,11 @@ export async function createUser(user: User) {
 // get users based on a query
 export function getUsers(query: getUserQuery) {
   logger.info("Called getUsers");
-  return userModel.getUsers(query);
+  const data = userModel.getUsers(query);
+  if(!data){
+    throw new NotFoundError("User with this id does not exist")
+  }
+  return data
 }
 
 // get a user by their email
@@ -39,7 +43,7 @@ export function getUserByEmail(email: string) {
   logger.info("Called getUserByEmail");
   const data = userModel.getUserByEmail(email);
   if(!data){
-    throw new BadRequestError("User with this email does not exist")
+    throw new NotFoundError("User with this email does not exist")
   }
   return data;
 }
@@ -50,7 +54,7 @@ export function deleteUserById(id:number){
   const taskDeletionResult = taskModel.deleteAllTasksByUserId(id); //delete all user tasks
   const userDeletionResult = userModel.deleteUserById(id); //delete user
   
-  if(!userDeletionResult) throw new BadRequestError("user task does not exist")
+  if(!userDeletionResult) throw new NotFoundError("user task does not exist")
   return {
     taskDeletionResult,
     userDeletionResult,
@@ -61,6 +65,6 @@ export function deleteUserById(id:number){
 export function updateUserById(id: number, updatedUserData: Partial<User>): User {
   logger.info("Called updateUserById");
   const data = userModel.updateUserById(String(id), updatedUserData);
-  if(!data) throw new BadRequestError("task doesnot exist")
+  if(!data) throw new NotFoundError("task doesnot exist")
   return data
 }

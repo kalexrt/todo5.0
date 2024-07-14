@@ -4,7 +4,6 @@ import * as userService from "../service/user.service";
 import { getUserQuery } from "../interfaces/user.interface";
 import HttpStatusCodes from "http-status-codes";
 import loggerWithNameSpace from "../utils/logger";
-import { ServerError } from "../error/ServerError";
 
 const logger = loggerWithNameSpace("UserController");
 

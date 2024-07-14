@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import * as authService from "../service/auth.service";
 import HttpStatusCodes from "http-status-codes";
 import loggerWithNameSpace from "../utils/logger";
-import { ServerError } from "../error/ServerError";
-import { ClientError } from "../error/ClientError";
 
 const logger =  loggerWithNameSpace("AuthController")
 

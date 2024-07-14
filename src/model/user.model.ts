@@ -1,3 +1,4 @@
+import { NotFoundError } from "../error/NotFoundError";
 import { getUserQuery, User } from "../interfaces/user.interface";
 import loggerWithNameSpace from "../utils/logger";
 
