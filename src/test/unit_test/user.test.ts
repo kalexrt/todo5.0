@@ -6,12 +6,12 @@ import {
   getUserById,
   getUsers,
   updateUserById,
-} from "../../../service/user.service";
+} from "../../service/user.service";
 import expect from "expect";
 import bcrypt from "bcrypt";
-import * as userModel from "../../../model/user.model";
-import * as taskModel from "../../../model/task.model";
-import { BadRequestError } from "../../../error/BadRequestError";
+import * as userModel from "../../model/user.model";
+import * as taskModel from "../../model/task.model";
+import { BadRequestError } from "../../error/BadRequestError";
 
 describe("User Service Test Suite", () => {
   describe("getUserById", () => {
