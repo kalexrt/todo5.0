@@ -21,7 +21,7 @@ npm start
 ### Docker setup
 
 ```bash
-docker pull kalexrt/todo:0.2.0
+docker pull kalexrt/todo:0.5.0
 ```
 
 ### Setup .env file
@@ -31,7 +31,7 @@ Create .env file with the help of .env.example to configure the port
 ### Run the server
 
 ```bash
-docker run -p <PORT>:<PORT> --env-file=<path_to_env> kalexrt/todo:0.2.0
+docker run -p <PORT>:<PORT> --env-file=<path_to_env> kalexrt/todo:0.5.0
 ```
 
 ### Routes
