@@ -21,19 +21,27 @@ export let users: User[] = [
   },
 ];
 
+//find user index
+export function findUserIndex(id: number) {
+  logger.info("Called FindTask")
+  const index = users.findIndex((users) => +users.id === id) 
+  return index
+}
+
 //return user by id
-export function getUserById(id: number) {
+export function getUserByIndex(index: number) {
   logger.info("Called getUserById");
-  return users.find(( user ) => parseInt(user.id) === id);
+  return users[index];
 }
 
 //create users
 export function createUser(user: User) {
   logger.info("Called createUser")
-  return users.push({
+  users.push({
     ...user,
     id: `${users[users.length - 1].id + 1}`,
   });
+  return ({message:"user created"})
 }
 
 //get all users
@@ -53,21 +61,15 @@ export function getUserByEmail(email: string) {
 }
 
 //delete the user by the id
-export function deleteUserById(id:number){
+export function deleteUserById(index:number){
   logger.info("Called deleteUserById")
-  const data = users.filter(user => parseInt(user.id) !== id);
-  if(data.length != 1) throw new NotFoundError("This user can not be found")
-  return {message: `user${id} is deleted`}
+  users.splice(index,1);
+  return ({message: `user deleted`})
 }
 
 //update the user from the given Id
-export function updateUserById(id: string, updatedUserData: Partial<User>): User {
+export function updateUserByIndex(index: number, updatedUserData: Partial<User>){
   logger.info("Called updateUserById")
-  const userIndex = users.findIndex(user => user.id === id);
-  if (userIndex === -1) {
-    throw new Error("User not found");
-  }
-  //update user data
-  users[userIndex] = { ...users[userIndex], ...updatedUserData };
-  return users[userIndex];
+  users[index] = { ...users[index], ...updatedUserData };
+  return ({message: `user updated`});
 }

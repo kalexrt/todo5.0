@@ -56,7 +56,7 @@ export function updateUserById(req: Request, res: Response, next: NextFunction) 
     const id = parseInt(req.params.id);
     const updatedUserData = req.body;
     const updatedUser = userService.updateUserById(id, updatedUserData);
-    res.status(HttpStatusCodes.OK).json({ message: "User updated", data: updatedUser });
+    res.status(HttpStatusCodes.OK).json({ message: "User updated" });
   } catch (error) {
     next();
   }

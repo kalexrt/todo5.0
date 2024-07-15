@@ -7,14 +7,12 @@ import { NotFoundError } from "../error/NotFoundError";
 
 const logger = loggerWithNameSpace("UserService");
 
-
 // get a user by their ID
 export function getUserById(id: number) {
   logger.info("Called getUserById");
-  const data = userModel.getUserById(id);
-  if (!data) {
-    throw new NotFoundError("User with this Id does not exist")
-  }
+  const index = userModel.findUserIndex(id);
+  if (index === -1)throw new NotFoundError("User with this Id does not exist")
+  const data = userModel.getUserByIndex(index);
   return data;
 }
 
@@ -51,10 +49,11 @@ export function getUserByEmail(email: string) {
 // delete a user by their ID, including all their tasks
 export function deleteUserById(id:number){
   logger.info("Called deleteUserById");
-  const taskDeletionResult = taskModel.deleteAllTasksByUserId(id); //delete all user tasks
+  const index = userModel.findUserIndex(id);
+  if (index === -1)throw new NotFoundError("User with this Id does not exist");
+
+  const taskDeletionResult = taskModel.deleteAllTasksByUserId(index); //delete all user tasks
   const userDeletionResult = userModel.deleteUserById(id); //delete user
-  
-  if(!userDeletionResult) throw new NotFoundError("user task does not exist")
   return {
     taskDeletionResult,
     userDeletionResult,
@@ -62,9 +61,12 @@ export function deleteUserById(id:number){
 }
 
 // update user information by their ID
-export function updateUserById(id: number, updatedUserData: Partial<User>): User {
+export function updateUserById(id: number, updatedUserData: Partial<User>){
   logger.info("Called updateUserById");
-  const data = userModel.updateUserById(String(id), updatedUserData);
-  if(!data) throw new NotFoundError("task doesnot exist")
+
+  const index = userModel.findUserIndex(id);
+  if (index === -1)throw new NotFoundError("User with this Id does not exist");
+
+  const data = userModel.updateUserByIndex(index, updatedUserData);
   return data
 }

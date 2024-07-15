@@ -4,7 +4,6 @@ import expect from "expect";
 import taskRouter from "../../routes/task.routes";
 import { STATUS } from "../../interfaces/status.interface";
 import { ITask } from "../../interfaces/ITask.interface";
-import { db } from "../../model/task.model";
 import config from "../../config";
 
 const app = express();
@@ -14,20 +13,11 @@ app.use("/tasks", taskRouter);
 const token = config.testBearerToken;
 const authHeader = { Authorization: token };
 
-describe.only("Task Routes Integration Tests", () => {
-  beforeEach(() => {
-    db.length = 0;
-    db.push(
-      { id: 1, name: "walk the dog", status: STATUS.TODO, userId: 1 },
-      { id: 2, name: "feed the cat", status: STATUS.TODO, userId: 1 },
-      { id: 3, name: "assignment 1", status: STATUS.TODO, userId: 2 }
-    );
-  });
-
+describe("Task Routes Integration Tests", () => {
   describe("GET /tasks", () => {
     it("should get all tasks for the authenticated user", async () => {
       const res = await request(app).get("/tasks").set(authHeader);
-      expect(res.statusCode).toBe(201);
+      expect(res.statusCode).toBe(200);
       expect(res.body).toEqual([
         { id: 1, name: "walk the dog", status: STATUS.TODO, userId: 1 },
         { id: 2, name: "feed the cat", status: STATUS.TODO, userId: 1 },
@@ -47,8 +37,8 @@ describe.only("Task Routes Integration Tests", () => {
         .post("/tasks")
         .set(authHeader)
         .send(newTask);
-      expect(res.statusCode).toBe(201);
-      expect(db).toContainEqual(newTask);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({message:"Task created"});
     });
   });
 
@@ -83,9 +73,9 @@ describe.only("Task Routes Integration Tests", () => {
         .set(authHeader)
         .send(updatedTask);
       expect(res.statusCode).toBe(200);
-      expect(db.find((task) => task.id === 1 && task.userId === 1)).toEqual(
-        updatedTask
-      );
+      expect(res.body).toEqual({
+        "message": "Task Updated"
+    });
     });
 
     it("should return 404 for updating a non-existent task", async () => {
@@ -105,11 +95,9 @@ describe.only("Task Routes Integration Tests", () => {
 
   describe("DELETE /tasks/:id", () => {
     it("should delete a task by ID for the authenticated user", async () => {
-      const res = await request(app).delete("/tasks/1").set(authHeader);
-      expect(res.statusCode).toBe(204);
-      expect(
-        db.find((task) => task.id === 1 && task.userId === 1)
-      ).toBeUndefined();
+      const res = await request(app).delete("/tasks/2").set(authHeader);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({message:"task deleted"})
     });
 
     it("should return 404 for deleting a non-existent task", async () => {

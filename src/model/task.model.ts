@@ -1,4 +1,3 @@
-import { NotFoundError } from "../error/NotFoundError";
 import { ITask } from "../interfaces/ITask.interface";
 import { STATUS } from "../interfaces/status.interface";
 import loggerWithNameSpace from "../utils/logger";
@@ -27,75 +26,48 @@ export let db: ITask[] = [
 ];
 
 //find task
-function findTask(searchId: number, userId: number) {
+export function findTask(searchId: number, userId: number) {
   logger.info("Called FindTask")
-  return (
-    db.findIndex((task) => task.id === searchId && task.userId === userId) ||
-    null
-  );
-}
-
-//validate task
-function isTaskInvalid(task: ITask) {
-  logger.info("Called isTaskInvalid")
-  return !task.id || !task.name || task.status === undefined || !task.userId;
+  const index = db.findIndex((task) => task.id === searchId && task.userId === userId) 
+  return index
 }
 
 //get all tasks
 export function getTasksFromDB(userId: number) {
   logger.info("Called getTasksFromDB")
-  return db.filter((task) => task.userId === userId);
+  const data = db.filter((task) => task.userId === userId);
+  return data
 }
 
 //get task from id
-export function getTaskByIdFromDB(taskId: number, userId: number) {
+export function getTaskByIdFromDB(index: number) {
   logger.info("Called getTaskByIdFromDB")
-  const index = findTask(taskId, userId);
-  if (index !== null) {
-    return db[index];
-  } else {
-    throw new NotFoundError("Task not found");
-  }
+  const data = db[index];
+  return data
 }
 
 //delete task
-export function deleteTaskByIdFromDB(idToBeDeleted: number, userId: number) {
+export function deleteTaskByIdFromDB(index: number) {
   logger.info("Called deleteTaskByIdFromDB")
-  const index = findTask(idToBeDeleted, userId);
-  if (index !== null) {
-    db.splice(index, 1); //remove task
-  } else {
-    throw new NotFoundError("Task not found");
-  }
+  db.splice(index, 1); //remove task
+  return {message:"task deleted"}
 }
 
 //create task
 export function createTaskInDB(task: ITask) {
   logger.info("Called createTaskInDB")
-  if (isTaskInvalid(task)) {
-    throw new NotFoundError("Invalid task data");
-  }
   db.push(task);
+  return {message:"task created"}
 }
 
 //update task
 export function updateTaskInDB(
-  taskId: number,
+  index: number,
   updatedTask: ITask,
-  userId: number
 ) {
   logger.info("Called updateTaskInDB")
-  const index = findTask(taskId, userId);
-  if (index !== null) {
-    //check index
-    if (isTaskInvalid(updatedTask)) {
-      //check task
-      throw new Error("Invalid task data");
-    }
-    db[index] = updatedTask; //update task
-  } else {
-    throw new NotFoundError("Task not found");
-  }
+  db[index] = updatedTask; //update task
+  return {message: "task updated"}
 }
 
 //delete all tasks by user id

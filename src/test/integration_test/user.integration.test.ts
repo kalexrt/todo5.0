@@ -99,8 +99,7 @@ describe("User Integration Test Suite", () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.data).toHaveProperty("id", "1");
-      expect(response.body.data).toHaveProperty("name", "Updated Kalash");
+      expect(response.body).toHaveProperty("message", "User updated");
     });
 
     it("Should return error when updating non-existing user", async () => {
@@ -109,12 +108,15 @@ describe("User Integration Test Suite", () => {
         .put(`/users/${userId}`)
         .set("Authorization", token)
         .send({
-          name: "NonExistingUser",
+          id: "2",
+          name: "khaaaa",
+          email: "kalash3@gmail.com",
+          password: "kalasH123.!",
+          permissions:[]
         });
 
-      expect(response.status).toBe(500);
-      // expect(responseBody).toHaveProperty("message", "Not Found");
-      expect(response.body).toHaveProperty("message", "Internal Server Error");
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Not Found");
     });
   });
 
@@ -127,7 +129,7 @@ describe("User Integration Test Suite", () => {
         .set("Authorization", token);
 
       expect(response.status).toBe(200);
-      expect(response.body.userDeletionResult).toHaveProperty("message", `user${userId} is deleted`);
+      expect(response.body.userDeletionResult).toHaveProperty("message", `user deleted`);
     });
 
     it("Should return error when deleting non-existing user", async () => {
@@ -137,8 +139,7 @@ describe("User Integration Test Suite", () => {
         .set("Authorization", token);
 
       expect(response.status).toBe(404);
-      const responseBody = JSON.parse(response.text);
-      expect(responseBody).toHaveProperty("message", "Not Found");
+      expect(response.body).toHaveProperty("message", "Not Found");
     });
   });
 });

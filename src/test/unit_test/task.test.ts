@@ -10,6 +10,7 @@ import {
 import * as taskModel from "../../model/task.model";
 import { ITask } from "../../interfaces/ITask.interface";
 import { STATUS } from "../../interfaces/status.interface";
+import { NotFoundError } from "../../error/NotFoundError";
 
 describe("Task Service Test Suite", () => {
   describe("getTasks", () => {
@@ -42,13 +43,16 @@ describe("Task Service Test Suite", () => {
   });
 
   describe("getTaskById", () => {
+    let taskModelFindTaskStub: sinon.SinonStub;
     let taskModelGetTaskByIdFromDBStub: sinon.SinonStub;
 
     beforeEach(() => {
+      taskModelFindTaskStub = sinon.stub(taskModel, "findTask");
       taskModelGetTaskByIdFromDBStub = sinon.stub(taskModel, "getTaskByIdFromDB");
     });
 
     afterEach(() => {
+      taskModelFindTaskStub.restore();
       taskModelGetTaskByIdFromDBStub.restore();
     });
 
@@ -60,32 +64,50 @@ describe("Task Service Test Suite", () => {
         userId: 1,
       };
 
+      taskModelFindTaskStub.returns(0);
       taskModelGetTaskByIdFromDBStub.returns(task);
 
       const response = getTaskById(1, 1);
 
       expect(response).toStrictEqual(task);
     });
+
+    it("Should throw NotFoundError if task not found", () => {
+      taskModelFindTaskStub.returns(-1);
+
+      expect(() => getTaskById(1, 1)).toThrow(NotFoundError);
+    });
   });
 
   describe("deleteTaskById", () => {
+    let taskModelFindTaskStub: sinon.SinonStub;
     let taskModelDeleteTaskByIdFromDBStub: sinon.SinonStub;
 
     beforeEach(() => {
+      taskModelFindTaskStub = sinon.stub(taskModel, "findTask");
       taskModelDeleteTaskByIdFromDBStub = sinon.stub(taskModel, "deleteTaskByIdFromDB");
     });
 
     afterEach(() => {
+      taskModelFindTaskStub.restore();
       taskModelDeleteTaskByIdFromDBStub.restore();
     });
 
     it("Should delete task by id for the user", () => {
-      taskModelDeleteTaskByIdFromDBStub.returns(undefined);
+      taskModelFindTaskStub.returns(0);
+      taskModelDeleteTaskByIdFromDBStub.returns({ message: "task deleted" });
 
-      deleteTaskById(1, 1);
+      const response = deleteTaskById(1, 1);
 
       expect(taskModelDeleteTaskByIdFromDBStub.callCount).toBe(1);
-      expect(taskModelDeleteTaskByIdFromDBStub.getCall(0).args).toStrictEqual([1, 1]);
+      expect(taskModelDeleteTaskByIdFromDBStub.getCall(0).args).toStrictEqual([0]);
+      expect(response).toStrictEqual({ message: "task deleted" });
+    });
+
+    it("Should throw NotFoundError if task not found", () => {
+      taskModelFindTaskStub.returns(-1);
+
+      expect(() => deleteTaskById(1, 1)).toThrow(NotFoundError);
     });
   });
 
@@ -109,24 +131,29 @@ describe("Task Service Test Suite", () => {
       };
 
       const userId = 1;
-
       const taskWithUserId = { ...task, userId };
 
-      createTask(task, userId);
+      taskModelCreateTaskInDBStub.returns({ message: "task created" });
+
+      const response = createTask(task, userId);
 
       expect(taskModelCreateTaskInDBStub.callCount).toBe(1);
       expect(taskModelCreateTaskInDBStub.getCall(0).args).toStrictEqual([taskWithUserId]);
+      expect(response).toStrictEqual({ message: "task created" });
     });
   });
 
   describe("updateTaskById", () => {
+    let taskModelFindTaskStub: sinon.SinonStub;
     let taskModelUpdateTaskInDBStub: sinon.SinonStub;
 
     beforeEach(() => {
+      taskModelFindTaskStub = sinon.stub(taskModel, "findTask");
       taskModelUpdateTaskInDBStub = sinon.stub(taskModel, "updateTaskInDB");
     });
 
     afterEach(() => {
+      taskModelFindTaskStub.restore();
       taskModelUpdateTaskInDBStub.restore();
     });
 
@@ -138,13 +165,29 @@ describe("Task Service Test Suite", () => {
         userId: 1,
       };
 
-      const userId = 1;
-      const taskId = 1;
+      taskModelFindTaskStub.returns(0);
+      taskModelUpdateTaskInDBStub.returns({ message: "task updated" });
 
-      updateTaskById(taskId, task, userId);
+      const response = updateTaskById(1, task, 1);
 
+      expect(taskModelFindTaskStub.callCount).toBe(1);
+      expect(taskModelFindTaskStub.getCall(0).args).toStrictEqual([1, 1]);
       expect(taskModelUpdateTaskInDBStub.callCount).toBe(1);
-      expect(taskModelUpdateTaskInDBStub.getCall(0).args).toStrictEqual([taskId, task, userId]);
+      expect(taskModelUpdateTaskInDBStub.getCall(0).args).toStrictEqual([0, task]);
+      expect(response).toStrictEqual({ message: "task updated" });
+    });
+
+    it("Should throw NotFoundError if task not found", () => {
+      taskModelFindTaskStub.returns(-1);
+
+      const task: ITask = {
+        id: 1,
+        name: "Updated Task",
+        status: STATUS.COMPLETE,
+        userId: 1,
+      };
+
+      expect(() => updateTaskById(1, task, 1)).toThrow(NotFoundError);
     });
   });
 });
