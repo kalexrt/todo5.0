@@ -1,3 +1,4 @@
+import { NotFoundError } from "../error/NotFoundError";
 import { ITask } from "../interfaces/ITask.interface";
 import { STATUS } from "../interfaces/status.interface";
 import loggerWithNameSpace from "../utils/logger";
@@ -53,7 +54,7 @@ export function getTaskByIdFromDB(taskId: number, userId: number) {
   if (index !== null) {
     return db[index];
   } else {
-    throw new Error("Task not found");
+    throw new NotFoundError("Task not found");
   }
 }
 
@@ -64,7 +65,7 @@ export function deleteTaskByIdFromDB(idToBeDeleted: number, userId: number) {
   if (index !== null) {
     db.splice(index, 1); //remove task
   } else {
-    throw new Error("Task not found");
+    throw new NotFoundError("Task not found");
   }
 }
 
@@ -72,7 +73,7 @@ export function deleteTaskByIdFromDB(idToBeDeleted: number, userId: number) {
 export function createTaskInDB(task: ITask) {
   logger.info("Called createTaskInDB")
   if (isTaskInvalid(task)) {
-    throw new Error("Invalid task data");
+    throw new NotFoundError("Invalid task data");
   }
   db.push(task);
 }
@@ -93,7 +94,7 @@ export function updateTaskInDB(
     }
     db[index] = updatedTask; //update task
   } else {
-    throw new Error("Task not found");
+    throw new NotFoundError("Task not found");
   }
 }
 

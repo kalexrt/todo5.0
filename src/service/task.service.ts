@@ -7,6 +7,7 @@ import {
 } from "../model/task.model";
 import { ITask } from "../interfaces/ITask.interface";
 import loggerWithNameSpace from "../utils/logger";
+import { NotFoundError } from "../error/NotFoundError";
 
 const logger = loggerWithNameSpace("TaskService")
 
@@ -19,24 +20,26 @@ export function getTasks(userId: number) {
 //get task by id
 export function getTaskById(id: number, userId: number) {
   logger.info("Called getTaskById")
-  return getTaskByIdFromDB(id, userId);
+  const data = getTaskByIdFromDB(id, userId);
+  if(!data) throw new NotFoundError("Not found");
+  return data
 }
 
 //delete task
 export function deleteTaskById(id: number, userId: number) {
   logger.info("Called deleteTaskByid")
-  deleteTaskByIdFromDB(id, userId);
+   return deleteTaskByIdFromDB(id, userId);
 }
 
 //create task
 export function createTask(task: ITask, userId: number) {
   logger.info("Called createTask")
   const taskWithUserId = { ...task, userId }; //add userId to the task
-  createTaskInDB(taskWithUserId);
+  return createTaskInDB(taskWithUserId);
 }
 
 //update task
 export function updateTaskById(id: number, task: ITask, userId: number) {
   logger.info("Called updateTaskById")
-  updateTaskInDB(id, task, userId);
+  return updateTaskInDB(id, task, userId);
 }
